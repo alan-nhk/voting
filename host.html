@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <title>互動投票網站 - 主持人頁面</title>
+    <style>
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
+        <h1 class="text-2xl font-bold mb-4">主持人頁面</h1>
+        <div class="flex justify-center mb-4">
+            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://your-voting-url"
+                alt="QR Code">
+        </div>
+        <div class="mb-4">
+            <div class="flex items-center mb-2">
+                <span class="w-1/4">繼續努力💪</span>
+                <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
+                    <div id="progress-1" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="flex items-center mb-2">
+                <span class="w-1/4">通過得分✅</span>
+                <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
+                    <div id="progress-2" class="bg-green-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+        <button id="reset-button"
+            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            重設投票
+        </button>
+    </div>
+
+    <script>
+        let votes = {
+            option1: 0,
+            option2: 0
+        };
+
+        const progress1 = document.getElementById('progress-1');
+        const progress2 = document.getElementById('progress-2');
+        const resetButton = document.getElementById('reset-button');
+
+        function updateProgressBars() {
+            const totalVotes = votes.option1 + votes.option2;
+            const percentage1 = totalVotes > 0 ? (votes.option1 / totalVotes) * 100 : 0;
+            const percentage2 = totalVotes > 0 ? (votes.option2 / totalVotes) * 100 : 0;
+            progress1.style.width = `${percentage1}%`;
+            progress2.style.width = `${percentage2}%`;
+        }
+
+        function receiveVote(data) {
+            if (data.option === 'option1') {
+                votes.option1++;
+            } else if (data.option === 'option2') {
+                votes.option2++;
+            }
+            updateProgressBars();
+        }
+
+        resetButton.addEventListener('click', () => {
+            votes = {
+                option1: 0,
+                option2: 0
+            };
+            updateProgressBars();
+            // 可以添加代碼通知所有投票者重設投票
+        });
+
+        // 這裡需要添加代碼來接收來自投票頁面的投票信息
+        // 例如使用 WebSocket 或者其他方式
+    </script>
+</body>
+
+</html>
+    

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <title>互動投票網站 - 投票頁面</title>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
+        <h1 class="text-2xl font-bold mb-4">投票頁面</h1>
+        <div class="mb-4">
+            <button id="option-1"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                繼續努力💪
+            </button>
+        </div>
+        <div class="mb-4">
+            <button id="option-2"
+                class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                通過得分✅
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let hasVoted = false;
+        let votedOption = null;
+
+        const option1Button = document.getElementById('option-1');
+        const option2Button = document.getElementById('option-2');
+
+        option1Button.addEventListener('click', () => {
+            if (!hasVoted) {
+                sendVote('option1');
+                hasVoted = true;
+                votedOption = 'option1';
+            } else if (votedOption === 'option2') {
+                // 撤銷之前的投票
+                sendVote('revoke', 'option2');
+                sendVote('option1');
+                votedOption = 'option1';
+            }
+        });
+
+        option2Button.addEventListener('click', () => {
+            if (!hasVoted) {
+                sendVote('option2');
+                hasVoted = true;
+                votedOption = 'option2';
+            } else if (votedOption === 'option1') {
+                // 撤銷之前的投票
+                sendVote('revoke', 'option1');
+                sendVote('option2');
+                votedOption = 'option2';
+            }
+        });
+
+        function sendVote(action, option = null) {
+            const data = {
+                action: action,
+                option: option
+            };
+            // 這裡需要添加代碼將投票信息發送到主持人頁面
+            // 例如使用 WebSocket 或者其他方式
+        }
+    </script>
+</body>
+
+</html>
+    
