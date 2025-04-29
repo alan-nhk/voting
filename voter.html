@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,24 +9,20 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
     <title>互動投票網站 - 投票頁面</title>
 </head>
-
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">投票頁面</h1>
         <div class="mb-4">
-            <button id="option-1"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-1" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 繼續努力💪
             </button>
         </div>
         <div class="mb-4">
-            <button id="option-2"
-                class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-2" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 通過得分✅
             </button>
         </div>
     </div>
-
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -39,59 +34,72 @@
             appId: "1:654960128633:web:beb202c4cad7c803465aa8",
             measurementId: "G-1V0FZJNMMH"
         };
-
         // Initialize Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
         let hasVoted = false;
         let votedOption = null;
-
         const option1Button = document.getElementById('option-1');
         const option2Button = document.getElementById('option-2');
-
         option1Button.addEventListener('click', () => {
             if (!hasVoted) {
                 const voteRef = database.ref('votes/option1');
                 voteRef.transaction((currentValue) => {
                     return (currentValue || 0) + 1;
+                }).then(() => {
+                    console.log('Vote for option 1 recorded successfully');
+                    hasVoted = true;
+                    votedOption = 'option1';
+                }).catch((error) => {
+                    console.error('Error recording vote for option 1:', error);
                 });
-                hasVoted = true;
-                votedOption = 'option1';
             } else if (votedOption === 'option2') {
                 const option2Ref = database.ref('votes/option2');
                 option2Ref.transaction((currentValue) => {
                     return (currentValue || 0) - 1;
+                }).then(() => {
+                    const option1Ref = database.ref('votes/option1');
+                    return option1Ref.transaction((currentValue) => {
+                        return (currentValue || 0) + 1;
+                    });
+                }).then(() => {
+                    console.log('Vote changed from option 2 to option 1');
+                    votedOption = 'option1';
+                }).catch((error) => {
+                    console.error('Error changing vote from option 2 to option 1:', error);
                 });
-                const option1Ref = database.ref('votes/option1');
-                option1Ref.transaction((currentValue) => {
-                    return (currentValue || 0) + 1;
-                });
-                votedOption = 'option1';
             }
         });
-
         option2Button.addEventListener('click', () => {
             if (!hasVoted) {
                 const voteRef = database.ref('votes/option2');
                 voteRef.transaction((currentValue) => {
                     return (currentValue || 0) + 1;
+                }).then(() => {
+                    console.log('Vote for option 2 recorded successfully');
+                    hasVoted = true;
+                    votedOption = 'option2';
+                }).catch((error) => {
+                    console.error('Error recording vote for option 2:', error);
                 });
-                hasVoted = true;
-                votedOption = 'option2';
             } else if (votedOption === 'option1') {
                 const option1Ref = database.ref('votes/option1');
                 option1Ref.transaction((currentValue) => {
                     return (currentValue || 0) - 1;
+                }).then(() => {
+                    const option2Ref = database.ref('votes/option2');
+                    return option2Ref.transaction((currentValue) => {
+                        return (currentValue || 0) + 1;
+                    });
+                }).then(() => {
+                    console.log('Vote changed from option 1 to option 2');
+                    votedOption = 'option2';
+                }).catch((error) => {
+                    console.error('Error changing vote from option 1 to option 2:', error);
                 });
-                const option2Ref = database.ref('votes/option2');
-                option2Ref.transaction((currentValue) => {
-                    return (currentValue || 0) + 1;
-                });
-                votedOption = 'option2';
             }
         });
     </script>
 </body>
-
 </html>
+    
