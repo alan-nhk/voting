@@ -18,7 +18,6 @@
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">主持人頁面</h1>
         <div class="flex justify-center mb-4">
-            <!-- 修改后的二维码链接 -->
             <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alan-nhk.github.io/voting/voter.html" alt="QR Code">
         </div>
         <div class="mb-4">
@@ -70,9 +69,12 @@
         const votesRef = database.ref('votes');
         votesRef.on('value', (snapshot) => {
             const data = snapshot.val();
+            console.log('Received vote data update:', data);
             votes.option1 = data.option1 || 0;
             votes.option2 = data.option2 || 0;
             updateProgressBars();
+        }, (error) => {
+            console.error('Error listening for vote data updates:', error);
         });
         resetButton.addEventListener('click', () => {
             const option1Ref = database.ref('votes/option1');
@@ -83,3 +85,4 @@
     </script>
 </body>
 </html>
+    
