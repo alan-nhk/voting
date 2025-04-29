@@ -8,39 +8,24 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
-    <title>互動投票網站 - 主持人頁面</title>
-    <style>
-        .progress-bar {
-            transition: width 0.5s ease;
-        }
-    </style>
+    <title>互動投票網站 - 投票頁面</title>
 </head>
 
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
-        <h1 class="text-2xl font-bold mb-4">主持人頁面</h1>
-        <div class="flex justify-center mb-4">
-            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://your-voting-url"
-                alt="QR Code">
+        <h1 class="text-2xl font-bold mb-4">投票頁面</h1>
+        <div class="mb-4">
+            <button id="option-1"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                繼續努力💪
+            </button>
         </div>
         <div class="mb-4">
-            <div class="flex items-center mb-2">
-                <span class="w-1/4">繼續努力💪</span>
-                <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
-                    <div id="progress-1" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="flex items-center mb-2">
-                <span class="w-1/4">通過得分✅</span>
-                <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
-                    <div id="progress-2" class="bg-green-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
-                </div>
-            </div>
+            <button id="option-2"
+                class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                通過得分✅
+            </button>
         </div>
-        <button id="reset-button"
-            class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-            重設投票
-        </button>
     </div>
 
     <script>
@@ -59,36 +44,52 @@
         const app = firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        let votes = {
-            option1: 0,
-            option2: 0
-        };
+        let hasVoted = false;
+        let votedOption = null;
 
-        const progress1 = document.getElementById('progress-1');
-        const progress2 = document.getElementById('progress-2');
-        const resetButton = document.getElementById('reset-button');
+        const option1Button = document.getElementById('option-1');
+        const option2Button = document.getElementById('option-2');
 
-        function updateProgressBars() {
-            const totalVotes = votes.option1 + votes.option2;
-            const percentage1 = totalVotes > 0 ? (votes.option1 / totalVotes) * 100 : 0;
-            const percentage2 = totalVotes > 0 ? (votes.option2 / totalVotes) * 100 : 0;
-            progress1.style.width = `${percentage1}%`;
-            progress2.style.width = `${percentage2}%`;
-        }
-
-        const votesRef = database.ref('votes');
-        votesRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            votes.option1 = data.option1 || 0;
-            votes.option2 = data.option2 || 0;
-            updateProgressBars();
+        option1Button.addEventListener('click', () => {
+            if (!hasVoted) {
+                const voteRef = database.ref('votes/option1');
+                voteRef.transaction((currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+                hasVoted = true;
+                votedOption = 'option1';
+            } else if (votedOption === 'option2') {
+                const option2Ref = database.ref('votes/option2');
+                option2Ref.transaction((currentValue) => {
+                    return (currentValue || 0) - 1;
+                });
+                const option1Ref = database.ref('votes/option1');
+                option1Ref.transaction((currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+                votedOption = 'option1';
+            }
         });
 
-        resetButton.addEventListener('click', () => {
-            const option1Ref = database.ref('votes/option1');
-            option1Ref.set(0);
-            const option2Ref = database.ref('votes/option2');
-            option2Ref.set(0);
+        option2Button.addEventListener('click', () => {
+            if (!hasVoted) {
+                const voteRef = database.ref('votes/option2');
+                voteRef.transaction((currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+                hasVoted = true;
+                votedOption = 'option2';
+            } else if (votedOption === 'option1') {
+                const option1Ref = database.ref('votes/option1');
+                option1Ref.transaction((currentValue) => {
+                    return (currentValue || 0) - 1;
+                });
+                const option2Ref = database.ref('votes/option2');
+                option2Ref.transaction((currentValue) => {
+                    return (currentValue || 0) + 1;
+                });
+                votedOption = 'option2';
+            }
         });
     </script>
 </body>
