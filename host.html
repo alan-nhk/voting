@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,11 +12,13 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
     <title>互動投票網站 - 主持人頁面</title>
 </head>
+
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">主持人頁面</h1>
         <div class="flex justify-center mb-4">
-            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://your-voting-url" alt="QR Code">
+            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alan-nhk.github.io/voter.html"
+                alt="QR Code">
         </div>
         <div class="mb-4">
             <div class="flex items-center mb-2">
@@ -37,4 +40,5 @@
     </div>
     <script src="js/host.js"></script>
 </body>
+
 </html>
