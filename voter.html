@@ -5,79 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <script type="module">
-        import { initializeApp } from "firebase/app";
-        import { getFirestore, doc, updateDoc, increment } from "firebase/firestore";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAL8OpTUk--EknGrTGwrJ_9LokbO0xf-u4",
-            authDomain: "doubao-voting.firebaseapp.com",
-            projectId: "doubao-voting",
-            storageBucket: "doubao-voting.firebasestorage.app",
-            messagingSenderId: "435797691765",
-            appId: "1:435797691765:web:ad74d0be64f4b23843173c"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        let hasVoted = false;
-        let votedOption = null;
-
-        const option1Button = document.getElementById('option-1');
-        const option2Button = document.getElementById('option-2');
-
-        option1Button.addEventListener('click', async () => {
-            if (!hasVoted) {
-                const voteRef = doc(db, 'votes', 'results');
-                await updateDoc(voteRef, {
-                    option1: increment(1)
-                });
-                hasVoted = true;
-                votedOption = 'option1';
-            } else if (votedOption === 'option2') {
-                const voteRef = doc(db, 'votes', 'results');
-                await updateDoc(voteRef, {
-                    option1: increment(1),
-                    option2: increment(-1)
-                });
-                votedOption = 'option1';
-            }
-        });
-
-        option2Button.addEventListener('click', async () => {
-            if (!hasVoted) {
-                const voteRef = doc(db, 'votes', 'results');
-                await updateDoc(voteRef, {
-                    option2: increment(1)
-                });
-                hasVoted = true;
-                votedOption = 'option2';
-            } else if (votedOption === 'option1') {
-                const voteRef = doc(db, 'votes', 'results');
-                await updateDoc(voteRef, {
-                    option1: increment(-1),
-                    option2: increment(1)
-                });
-                votedOption = 'option2';
-            }
-        });
-    </script>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 引入 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
     <title>互動投票網站 - 投票頁面</title>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">投票頁面</h1>
         <div class="mb-4">
-            <button id="option-1" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-1" class="vote-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 繼續努力💪
             </button>
         </div>
         <div class="mb-4">
-            <button id="option-2" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-2" class="vote-button bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 通過得分✅
             </button>
         </div>
     </div>
+    <script src="js/voter.js"></script>
 </body>
 </html>
