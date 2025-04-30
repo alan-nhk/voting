@@ -1,0 +1,7 @@
+.progress-bar {
+    transition: width 0.5s ease;
+}
+
+.vote-button {
+    /* 这里可以添加更多自定义样式 */
+}
