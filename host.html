@@ -1,36 +1,29 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <!-- 引入 Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <!-- 引入 Tailwind CSS 构建后的文件 -->
+    <link rel="stylesheet" href="dist/styles.css">
     <title>互動投票網站 - 主持人頁面</title>
 </head>
-
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">主持人頁面</h1>
         <div class="flex justify-center mb-4">
-            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alan-nhk.github.io/voting/voter.html"
-                alt="QR Code">
+            <img id="qrcode" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alan-nhk.github.io/voting/voter.html" alt="QR Code">
         </div>
         <div class="mb-4">
             <div class="flex items-center mb-2">
                 <span class="w-1/4">繼續努力💪</span>
                 <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
-                    <div id="progress-1" class="progress-bar bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    <div id="progress-1" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
             </div>
             <div class="flex items-center mb-2">
                 <span class="w-1/4">通過得分✅</span>
                 <div class="w-3/4 bg-gray-200 rounded-full h-2.5 relative">
-                    <div id="progress-2" class="progress-bar bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    <div id="progress-2" class="bg-green-600 h-2.5 rounded-full" style="width: 0%"></div>
                 </div>
             </div>
         </div>
@@ -38,7 +31,57 @@
             重設投票
         </button>
     </div>
-    <script src="js/host.js"></script>
-</body>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
 
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL8OpTUk--EknGrTGwrJ_9LokbO0xf-u4",
+            authDomain: "doubao-voting.firebaseapp.com",
+            projectId: "doubao-voting",
+            storageBucket: "doubao-voting.firebasestorage.app",
+            messagingSenderId: "435797691765",
+            appId: "1:435797691765:web:ad74d0be64f4b23843173c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const progress1 = document.getElementById('progress-1');
+            const progress2 = document.getElementById('progress-2');
+            const resetButton = document.getElementById('reset-button');
+            let votes = {
+                option1: 0,
+                option2: 0
+            };
+
+            function updateProgressBars() {
+                const totalVotes = votes.option1 + votes.option2;
+                const percentage1 = totalVotes > 0? (votes.option1 / totalVotes) * 100 : 0;
+                const percentage2 = totalVotes > 0? (votes.option2 / totalVotes) * 100 : 0;
+                progress1.style.width = `${percentage1}%`;
+                progress2.style.width = `${percentage2}%`;
+            }
+
+            const votesRef = ref(database, 'votes');
+            onValue(votesRef, (snapshot) => {
+                const data = snapshot.val();
+                console.log('Received vote data update:', data);
+                votes.option1 = data?.option1 || 0;
+                votes.option2 = data?.option2 || 0;
+                updateProgressBars();
+            }, (error) => {
+                console.error('Error listening for vote data updates:', error);
+            });
+
+            resetButton.addEventListener('click', () => {
+                const option1Ref = ref(database, 'votes/option1');
+                const option2Ref = ref(database, 'votes/option2');
+                option1Ref.set(0);
+                option2Ref.set(0);
+            });
+        });
+    </script>
+</body>
 </html>
