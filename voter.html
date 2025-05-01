@@ -3,28 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <!-- 引入 Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js"></script>
+    <!-- 引入 Tailwind CSS 构建后的文件 -->
+    <link rel="stylesheet" href="dist/styles.css">
     <title>互動投票網站 - 投票頁面</title>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="p-8 max-w-md mx-auto bg-white rounded shadow mt-8">
         <h1 class="text-2xl font-bold mb-4">投票頁面</h1>
         <div class="mb-4">
-            <button id="option-1" class="vote-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-1" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 繼續努力💪
             </button>
         </div>
         <div class="mb-4">
-            <button id="option-2" class="vote-button bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button id="option-2" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 通過得分✅
             </button>
         </div>
     </div>
-    <script src="js/voter.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+        import { getDatabase, ref, transaction } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAL8OpTUk--EknGrTGwrJ_9LokbO0xf-u4",
+            authDomain: "doubao-voting.firebaseapp.com",
+            projectId: "doubao-voting",
+            storageBucket: "doubao-voting.firebasestorage.app",
+            messagingSenderId: "435797691765",
+            appId: "1:435797691765:web:ad74d0be64f4b23843173c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const option1Button = document.getElementById('option-1');
+            const option2Button = document.getElementById('option-2');
+            let hasVoted = false;
+            let votedOption = null;
+
+            option1Button.addEventListener('click', () => {
+                if (!hasVoted) {
+                    const voteRef = ref(database, 'votes/option1');
+                    transaction(voteRef, (currentValue) => {
+                        return (currentValue || 0) + 1;
+                    }).then(() => {
+                        console.log('Vote for option 1 recorded successfully');
+                        hasVoted = true;
+                        votedOption = 'option1';
+                    }).catch((error) => {
+                        console.error('Error recording vote for option 1:', error);
+                    });
+                } else if (votedOption === 'option2') {
+                    const option2Ref = ref(database, 'votes/option2');
+                    transaction(option2Ref, (currentValue) => {
+                        return (currentValue || 0) - 1;
+                    }).then(() => {
+                        const option1Ref = ref(database, 'votes/option1');
+                        return transaction(option1Ref, (currentValue) => {
+                            return (currentValue || 0) + 1;
+                        });
+                    }).then(() => {
+                        console.log('Vote changed from option 2 to option 1');
+                        votedOption = 'option1';
+                    }).catch((error) => {
+                        console.error('Error changing vote from option 2 to option 1:', error);
+                    });
+                }
+            });
+
+            option2Button.addEventListener('click', () => {
+                if (!hasVoted) {
+                    const voteRef = ref(database, 'votes/option2');
+                    transaction(voteRef, (currentValue) => {
+                        return (currentValue || 0) + 1;
+                    }).then(() => {
+                        console.log('Vote for option 2 recorded successfully');
+                        hasVoted = true;
+                        votedOption = 'option2';
+                    }).catch((error) => {
+                        console.error('Error recording vote for option 2:', error);
+                    });
+                } else if (votedOption === 'option1') {
+                    const option1Ref = ref(database, 'votes/option1');
+                    transaction(option1Ref, (currentValue) => {
+                        return (currentValue || 0) - 1;
+                    }).then(() => {
+                        const option2Ref = ref(database, 'votes/option2');
+                        return transaction(option2Ref, (currentValue) => {
+                            return (currentValue || 0) + 1;
+                        });
+                    }).then(() => {
+                        console.log('Vote changed from option 1 to option 2');
+                        votedOption = 'option2';
+                    }).catch((error) => {
+                        console.error('Error changing vote from option 1 to option 2:', error);
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>
